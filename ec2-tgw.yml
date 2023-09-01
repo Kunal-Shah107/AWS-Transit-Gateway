@@ -5,7 +5,7 @@ Parameters:
 
   ImageId:
     Type: String
-    Description: 'Amazon Linux AMI for EC2 Bastion Used for deploying Airflow on EKS'
+    Description: 'Amazon Linux AMI for EC2 Bastion used for testing connectivity through TGW'
     Default: ami-xxxxxxxxxxx #Change AMI ID as per your region.
   VpcId:
     Type: String
