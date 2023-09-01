@@ -1,0 +1,92 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Template to Create an EC2 instance in a Existing VPC
+   
+Parameters:
+
+  ImageId:
+    Type: String
+    Description: 'Amazon Linux AMI for EC2 Bastion Used for deploying Airflow on EKS'
+    Default: ami-xxxxxxxxxxx #Change AMI ID as per your region.
+  VpcId:
+    Type: String
+    Description: VPC id
+    Default: vpc-xxxxxxxxxxx #VPC ID created from kunal-commons
+  SubnetId:
+    Type: String
+    Description: Subnet in which to launch an EC2
+    Default: subnet-xxxxxxxxx #Private Subnet ID created from kunal-commons
+  AvailabilityZone:
+    Type: String
+    Description: Availability Zone into which instance will launch
+    Default: eu-west-1a #Region
+  InstanceType:
+    Type: String
+    Description: Choosing t3 small because it is sufficient as per requirement.
+    Default: t3.small #Instance Size
+  KeyName:
+    Description: SSH Keypair to login to the instance
+    Type: AWS::EC2::KeyPair::KeyName
+    Default: give_your_key #This needs to created manually from console.
+
+Resources:
+  TGWEC2IamRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - ec2.amazonaws.com
+            - ssm.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      ManagedPolicyArns:
+      - arn:aws:iam::aws:policy/AdministratorAccess
+      - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+      Path: "/"
+      
+  TGWEC2InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: "/"
+      Roles:
+      - Ref: TGWEC2IamRole
+      
+  TGWEC2Instance:
+    Type: 'AWS::EC2::Instance'
+    Properties: 
+      ImageId: !Ref ImageId
+      InstanceType: !Ref InstanceType
+      AvailabilityZone: !Ref AvailabilityZone
+      KeyName: !Ref KeyName
+      SecurityGroupIds: 
+        - !Ref TGWEC2SecurityGroup
+      SubnetId: !Ref SubnetId
+      IamInstanceProfile: !Ref TGWEC2InstanceProfile
+
+  TGWEC2SecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      VpcId: !Ref VpcId
+      GroupDescription: SG to allow SSH/RDP access to Airflow-EKS Instance
+      SecurityGroupIngress:
+        - IpProtocol: icmp
+          FromPort: '-1'
+          ToPort: '-1'
+          CidrIp: '0.0.0.0/0'         
+      SecurityGroupEgress:
+        - IpProtocol: all
+          CidrIp: '0.0.0.0/0'     
+      Tags:
+        - Key: Name
+          Value: tgw-test-ec2
+
+Outputs:
+  TGWEC2InstanceId:
+    Description: Instance Id 
+    Value: !Ref TGWEC2Instance
+  TGWEC2IamRoleArn:
+    Description: The ARN of the IAM role assigned to the TGW EC2 instance
+    Value: !GetAtt TGWEC2IamRole.Arn
