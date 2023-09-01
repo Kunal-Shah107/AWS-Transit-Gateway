@@ -10,15 +10,15 @@ Parameters:
   VpcId:
     Type: String
     Description: VPC id
-    Default: vpc-xxxxxxxxxxx #VPC ID created from kunal-commons
+    Default: vpc-xxxxxxxxxxx #Existing VPC ID
   SubnetId:
     Type: String
     Description: Subnet in which to launch an EC2
-    Default: subnet-xxxxxxxxx #Private Subnet ID created from kunal-commons
+    Default: subnet-xxxxxxxxx #Private Subnet ID
   AvailabilityZone:
     Type: String
     Description: Availability Zone into which instance will launch
-    Default: eu-west-1a #Region
+    Default: eu-west-1a #AZ
   InstanceType:
     Type: String
     Description: Choosing t3 small because it is sufficient as per requirement.
