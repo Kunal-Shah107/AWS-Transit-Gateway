@@ -70,7 +70,7 @@ Resources:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
       VpcId: !Ref VpcId
-      GroupDescription: SG to allow SSH/RDP access to Airflow-EKS Instance
+      GroupDescription: SG to allow ICMP access
       SecurityGroupIngress:
         - IpProtocol: icmp
           FromPort: '-1'
